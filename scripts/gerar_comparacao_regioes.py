@@ -7,10 +7,11 @@ O artigo não traz gasto por região de saúde (a Tabela 3 só chega às macrorr
 Valores em reais nominais (sem correção pelo IGP-M: a correção do artigo não foi reproduzida, veja VERIFICACAO_BASE.md).
 Também acrescenta ao `indice_busca` as palavras que levam o chat a essa seção. Precisa de internet (TABNET).
 Uso: python scripts/gerar_comparacao_regioes.py   (rode depois de gerar_territorios.py e antes de gerar_perguntas.py)"""
-import datetime, json, os, re, sys, unicodedata
+import datetime, json, os, re, sys, unicodedata, urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import importar_saude_vias as isv   # noqa: E402
+from prais_winsten import prais_winsten   # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 JS = os.path.join(ROOT, 'data', 'sinistros.json')
@@ -52,6 +53,47 @@ def consultar(anos):
     return sih('Internações'), sih('Óbitos'), sih('Valor_total'), sim
 
 
+def calcular_tendencias(regioes):
+    """VPA (variação percentual anual, regressão de Prais-Winsten sobre log10, como no artigo) 2010-2023 por região e para o estado:
+    internações registradas e gasto registrado (SIH/SUS, por ano de processamento, como o artigo) e óbitos registrados (SIM, por ano do óbito).
+    As séries são contagens anuais, o que equivale a taxas com população fixa; nas internações isso difere em menos de 0,5 ponto percentual
+    ao ano da VPA da taxa na Tabela 1 do artigo (que usa a população projetada a cada ano). O gasto é corrigido pelo IGP-M (Banco Central,
+    SGS 189): o valor de cada ano é levado de junho daquele ano a dezembro de 2023."""
+    anos = list(range(2010, 2024))
+    arq = [f'frpi{a % 100:02d}{m:02d}.dbf' for a in anos for m in range(1, 13)]
+
+    def sih(inc):
+        t = isv.tabnet('sih/cnv/frpi.def', {'Linha': ['Região_de_Saúde_(CIR)'], 'Coluna': ['Ano_processamento'], 'Incremento': [inc],
+                                              'Arquivos': arq, 'SGrupo_de_Causas': GRUPOS})
+        assert [int(a) for a in t[0][1:-1]] == anos, 'anos de processamento inesperados'
+        return {slug(r[0][6:]): [num(x) for x in r[1:-1]] for r in t[1:] if re.match(r'^\d{5} ', r[0])}
+    t = isv.tabnet('sim/cnv/ext10pi.def', {'Linha': ['Região_de_Saúde_(CIR)'], 'Coluna': ['Ano_do_Óbito'], 'Incremento': ['Óbitos_p/Residênc'],
+                                            'Arquivos': [f'extpi{a % 100:02d}.dbf' for a in anos], 'SGrupo_CID10': GRUPOS})
+    assert [int(a) for a in t[0][1:-1]] == anos, 'anos do óbito inesperados'
+    sim = {slug(r[0][6:]): [num(x) for x in r[1:-1]] for r in t[1:] if re.match(r'^\d{5} ', r[0])}
+    internacoes, valor = sih('Internações'), sih('Valor_total')
+    req = urllib.request.Request('https://api.bcb.gov.br/dados/serie/bcdata.sgs.189/dados?formato=json&dataInicial=01/01/2009&dataFinal=31/12/2023',
+                                 headers={'User-Agent': isv.UA['User-Agent'], 'Accept': 'application/json'})
+    idx, acum = {}, 1.0
+    for r in json.loads(urllib.request.urlopen(req, timeout=60).read()):
+        _, mm, yy = r['data'].split('/')
+        acum *= 1 + float(r['valor']) / 100
+        idx[(int(yy), int(mm))] = acum
+    fator = [idx[(2023, 12)] / idx[(a, 6)] for a in anos]
+
+    def vpa(serie):
+        pw = prais_winsten(serie, anos)
+        t_ = 'Crescente' if pw['ic95_min'] > 0 else 'Decrescente' if pw['ic95_max'] < 0 else 'Estável'
+        return {'vpa_pct': round(pw['vpa'], 2), 'ic95': [round(pw['ic95_min'], 2), round(pw['ic95_max'], 2)], 'tendencia': t_}
+
+    def tres(i, o, v):
+        return {'internacoes': vpa(i), 'obitos_sim': vpa(o), 'gasto_corrigido_igpm': vpa([a * f for a, f in zip(v, fator)])}
+    soma = lambda S: [sum(S[k][i] for k in regioes) for i in range(len(anos))]   # noqa: E731
+    out = {k: tres(internacoes[k], sim[k], valor[k]) for k in regioes}
+    out['_estado'] = tres(soma(internacoes), soma(sim), soma(valor))
+    return out
+
+
 def ranks(valores):
     ordem = sorted(range(len(valores)), key=lambda i: valores[i])
     r = [0.0] * len(valores)
@@ -73,7 +115,7 @@ def spearman(x, y):
     return cov / (sum((a - mx) ** 2 for a in rx) * sum((b - my) ** 2 for b in ry)) ** 0.5
 
 
-def montar(chave, d, base):
+def montar(chave, d, base, tend=None):
     anos = d['anos']
     n_anos = len(anos)
     I, O, V, S = consultar(anos)
@@ -102,22 +144,39 @@ def montar(chave, d, base):
         'letalidade_hospitalar_pct': round(tot_o / tot_i * 100, 2), 'gasto_total_reais': round(tot_v, 2),
         'gasto_medio_por_internacao_reais': round(tot_v / tot_i, 2), 'gasto_por_habitante_ano_reais': round(tot_v / n_anos / pop_pi, 2),
     }
+    if tend:
+        for k, r in regs.items():
+            r['tendencia_anual'] = tend[k]
+        estado['tendencia_anual'] = tend['_estado']
     # leitura pronta: o chat cita estes textos sem recalcular
     L = list(regs.values())
     topo = lambda campo, rev=True: sorted(L, key=lambda r: r[campo], reverse=rev)   # noqa: E731
     a, b, c, e = topo('gasto_total_reais')[0], topo('gasto_por_habitante_ano_reais')[0], topo('gasto_medio_por_internacao_reais')[0], topo('taxa_obitos_sim_100mil_ano')[0]
     leitura = [
-        f'Maior gasto total do SUS com internações por acidentes de transporte: {a["nome"]}, R$ {br(a["gasto_total_reais"] / 1e6, 1)} milhões '
+        f'Maior gasto registrado do SUS com internações por sinistros de trânsito: {a["nome"]}, R$ {br(a["gasto_total_reais"] / 1e6, 1)} milhões '
         f'({br(a["pct_do_gasto_estadual"])}% do gasto estadual, com {br(a["pct_das_internacoes_estaduais"])}% das internações).',
-        f'Maior gasto por habitante por ano: {b["nome"]}, R$ {br(b["gasto_por_habitante_ano_reais"], 2)} (estado: R$ {br(estado["gasto_por_habitante_ano_reais"], 2)}).',
-        f'Maior gasto médio por internação: {c["nome"]}, R$ {br(c["gasto_medio_por_internacao_reais"], 2)} (estado: R$ {br(estado["gasto_medio_por_internacao_reais"], 2)}).',
-        f'Maior taxa de óbitos (SIM, residentes): {e["nome"]}, {br(e["taxa_obitos_sim_100mil_ano"])} por 100 mil hab. por ano (estado: {br(estado["taxa_obitos_sim_100mil_ano"])}).',
-        f'Maior prevalência (taxa de internação): {topo("taxa_internacao_100mil")[0]["nome"]}, {br(topo("taxa_internacao_100mil")[0]["taxa_internacao_100mil"])} por 100 mil hab. (estado: {br(estado["taxa_internacao_100mil"])}).',
+        f'Maior gasto registrado por habitante por ano: {b["nome"]}, R$ {br(b["gasto_por_habitante_ano_reais"], 2)} (estado: R$ {br(estado["gasto_por_habitante_ano_reais"], 2)}).',
+        f'Maior gasto registrado médio por internação: {c["nome"]}, R$ {br(c["gasto_medio_por_internacao_reais"], 2)} (estado: R$ {br(estado["gasto_medio_por_internacao_reais"], 2)}).',
+        f'Maior taxa de óbitos registrados por sinistros de trânsito (SIM, residentes): {e["nome"]}, {br(e["taxa_obitos_sim_100mil_ano"])} por 100 mil hab. por ano (estado: {br(estado["taxa_obitos_sim_100mil_ano"])}).',
+        f'Maior prevalência (taxa de internações registradas): {topo("taxa_internacao_100mil")[0]["nome"]}, {br(topo("taxa_internacao_100mil")[0]["taxa_internacao_100mil"])} por 100 mil hab. (estado: {br(estado["taxa_internacao_100mil"])}).',
     ]
     sub = [r['nome'] for r in L if r['taxa_obitos_sim_100mil_ano'] >= estado['taxa_obitos_sim_100mil_ano'] and r['taxa_internacao_100mil'] < 0.6 * estado['taxa_internacao_100mil']]
     if sub:
         leitura.append('Óbitos acima da média do estado com internações abaixo de 60% da média (sinal de possível falta de registro da causa externa no SIH, que também '
                        'reduz o gasto aparente): ' + ', '.join(sub) + '.')
+    reg = lambda n: f'{n} região' if n == 1 else f'{n} regiões'   # noqa: E731
+    if tend:
+        rotulos = {'internacoes': 'internações registradas', 'obitos_sim': 'óbitos registrados (SIM)', 'gasto_corrigido_igpm': 'gasto registrado a preços constantes (IGP-M)'}
+        for m, rot in rotulos.items():
+            alta = [r for r in L if r['tendencia_anual'][m]['tendencia'] == 'Crescente']
+            queda = [r for r in L if r['tendencia_anual'][m]['tendencia'] == 'Decrescente']
+            maior = max(L, key=lambda r: r['tendencia_anual'][m]['vpa_pct'])
+            menor = min(L, key=lambda r: r['tendencia_anual'][m]['vpa_pct'])
+            e_ = estado['tendencia_anual'][m]
+            leitura.append(f'Tendência 2010-2023 de {rot} (VPA por Prais-Winsten): estado {br(e_["vpa_pct"], 2)}% ao ano ({e_["tendencia"].lower()}); crescente em {reg(len(alta))}, '
+                           f'decrescente em {reg(len(queda))} e estável em {reg(len(L) - len(alta) - len(queda))}; maior alta em {maior["nome"]} ({br(maior["tendencia_anual"][m]["vpa_pct"], 2)}% ao ano), '
+                           f'menor em {menor["nome"]} ({br(menor["tendencia_anual"][m]["vpa_pct"], 2)}% ao ano).')
+
     def rho(x, y):
         return round(spearman([r[x] for r in L], [r[y] for r in L]), 2)
     corr = {
@@ -133,6 +192,7 @@ ADICOES_INDICE = {   # palavra (normalizada) -> caminhos que o chat deve enviar
     'gasto': ['comparacao_regioes_saude'], 'custo': ['comparacao_regioes_saude'], 'valor': ['comparacao_regioes_saude'],
     'despesa': ['comparacao_regioes_saude'], 'financ': ['comparacao_regioes_saude'], 'reais': ['comparacao_regioes_saude'],
     'orcament': ['comparacao_regioes_saude'], 'dinheiro': ['comparacao_regioes_saude'], 'per capita': ['comparacao_regioes_saude'],
+    'vpa': ['comparacao_regioes_saude'], 'prais': ['comparacao_regioes_saude'],
     'prevalenc': ['comparacao_regioes_saude', 'estudo_morbidade_piaui_2010_2023.taxa_internacao_hospitalar_100mil_hab'],
     'incidenc': ['comparacao_regioes_saude', 'estudo_morbidade_piaui_2010_2023.taxa_internacao_hospitalar_100mil_hab'],
     'regiao': ['comparacao_regioes_saude'], 'regioes': ['comparacao_regioes_saude', 'estudo_morbidade_piaui_2010_2023.taxa_internacao_hospitalar_100mil_hab.por_regiao_de_saude'],
@@ -197,10 +257,11 @@ def main():
     periodos = {}
     for chave, p in PERIODOS.items():
         print('TABNET:', p['rotulo'])
-        periodos[chave] = montar(chave, p, base)
+        tend = calcular_tendencias(list(base['nomes'])) if chave == '2010_2023' else None
+        periodos[chave] = montar(chave, p, base, tend)
     secao = {
-        'como_usar': ('Compara as 12 regiões de saúde em três medidas: prevalência (taxa de internação por 100 mil hab.), óbitos e gasto do SUS com as internações por '
-                      'acidentes de transporte terrestre. Há dois períodos; não misture números de períodos diferentes. Cite os números e os textos de "leitura" como estão. '
+        'como_usar': ('Compara as 12 regiões de saúde em três medidas REGISTRADAS e relacionadas a sinistros de trânsito (acidentes de transporte terrestre, CID-10 V01-V89): prevalência '
+                      '(taxa de internações registradas por 100 mil hab.), óbitos registrados (SIM) e gasto registrado do SUS com essas internações (SIH/SUS). Há dois períodos; não misture números de períodos diferentes. Cite os números e os textos de "leitura" como estão. '
                       'Em "regioes", cada região traz as três medidas e a participação no total do estado.'),
         'fonte': {
             'internacoes_obitos_hospitalares_gasto': 'SIH/SUS (TABNET/DATASUS, formulário frpi), V01-V89, por região de saúde de RESIDÊNCIA; "gasto" é o valor total pago pelo SUS nas AIH',
@@ -208,14 +269,22 @@ def main():
             'populacao': 'IBGE, Censo 2022 (tabela 4714), somada por região de saúde',
             'prevalencia_2010_2023': 'taxa média de internação da Tabela 1 do artigo (Bastos et al. 2026; população projetada pelo Ministério da Saúde)',
             'prevalencia_2020_2024': 'taxa de internações de atencao_territorial (população do Censo 2022)',
+            'tendencia_anual': 'só em 2010_2023: VPA (variação percentual anual) por regressão de Prais-Winsten sobre log10 de contagens anuais 2010-2023 (SIH/SUS por ano de processamento; SIM por ano do óbito), '
+                               'com IC95% e tendência (Crescente/Decrescente se o IC95% não inclui zero; senão Estável); gasto corrigido pelo IGP-M do Banco Central (SGS 189), de junho de cada ano a dezembro de 2023',
             'consultado_em': datetime.date.today().isoformat(), 'gerado_por': 'scripts/gerar_comparacao_regioes.py'},
         'limites': [
+            'Todos os números são REGISTRADOS e se referem a sinistros de trânsito (acidentes de transporte terrestre, CID-10 V01-V89): gasto = valor pago pelo SUS nas AIH registradas no SIH/SUS; '
+            'óbitos = óbitos registrados no SIM; prevalência = internações registradas. O que não foi registrado, ou foi registrado com outra causa, não entra, e o gasto não inclui o '
+            'que o SUS não pagou nem o setor privado. Chame sempre de "gasto registrado" e "óbitos registrados", nunca de gasto ou mortes totais.',
             'O artigo não traz gasto por região de saúde (a Tabela 3 só chega às macrorregiões); os valores regionais vêm do TABNET, a mesma fonte do artigo, e reproduzem os seus totais.',
             'Valores nominais, sem correção pelo IGP-M. O gasto médio por internação cai no artigo após a correção, mas em valores nominais ele subiu; a tabela de procedimentos do SUS '
             'não inclui o financiamento complementar de estados e municípios, então o gasto é subestimado.',
             'Gasto e internações dependem do registro da causa externa no SIH: regiões como Vale do Rio Guaribas e Chapada Vale do Rio Itaim registram poucas internações e podem '
             'estar subestimadas, o que reduz o gasto aparente. Por isso os óbitos do SIM são a medida mais completa.',
             'Gasto por habitante usa a população do Censo 2022 em todo o período. Entre Rios inclui Teresina, polo hospitalar do estado, mas as internações são por residência do paciente.',
+            'Tendência anual (VPA): vem de contagens, não de taxas (a população anual projetada não está na base); nas internações isso difere em menos de 0,5 ponto percentual ao ano da VPA da '
+            'Tabela 1 do artigo. A correção pelo IGP-M segue um critério próprio (junho de cada ano até dezembro de 2023), pois o do artigo não foi reproduzido. Em 2020_2024 não há VPA: '
+            'cinco anos são pouco para a regressão.',
             'Dados por área (ecológicos): mostram associação entre regiões, não causa.'],
         'periodos': periodos,
     }

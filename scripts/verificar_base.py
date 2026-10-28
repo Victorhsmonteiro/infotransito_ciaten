@@ -235,6 +235,28 @@ def consistencia_interna(estudo):
               'o artigo imprime -2,55 (-2,55; 0,60): provável erro de digitação do limite inferior (a VPA fica no centro do IC em escala log, o que daria algo perto de -5,6). A base repete o número do artigo; trate como não confiável')
 
 
+def conferir_tendencias_comparacao(sinistros):
+    """VPA das internações por região (contagens anuais, seção comparacao_regioes_saude) x VPA da taxa na Tabela 1 do artigo."""
+    sec = sinistros.get('comparacao_regioes_saude')
+    if not sec:
+        return
+    est = sinistros['estudo_morbidade_piaui_2010_2023']['taxa_internacao_hospitalar_100mil_hab']
+    regs = sec['periodos']['2010_2023']['regioes']
+    difs, cat = [], []
+    for k, r in regs.items():
+        art = est['por_regiao_de_saude'][k]
+        difs.append(abs(r['tendencia_anual']['internacoes']['vpa_pct'] - art['vpa_pct']))
+        if r['tendencia_anual']['internacoes']['tendencia'] != art['tendencia']:
+            cat.append(f'{r["nome"]}: gráfico {r["tendencia_anual"]["internacoes"]["tendencia"]} x artigo {art["tendencia"]}')
+    registrar('gráfico de comparação (Prais-Winsten)', 'VPA das internações por região (contagens) x VPA da taxa (Tabela 1): maior diferença em pontos percentuais',
+              'até 0,6 ponto percentual', f'{max(difs):.2f}', 'ok' if max(difs) <= 0.6 else 'aviso',
+              'a diferença vem da população, que cresce ao longo dos anos no artigo e é fixa nas contagens')
+    registrar('gráfico de comparação (Prais-Winsten)', 'Mesma classificação de tendência (crescente/estável/decrescente) que o artigo, nas 12 regiões',
+              '12 iguais', f'{12 - len(cat)} iguais' + (': ' + '; '.join(cat) if cat else ''), 'ok' if not cat else 'aviso')
+    e = sec['periodos']['2010_2023']['estado']['tendencia_anual']['internacoes']['vpa_pct']
+    registrar('gráfico de comparação (Prais-Winsten)', 'VPA das internações do estado (contagens) x VPA da taxa do artigo (5,72)', 5.72, e, 'ok' if abs(e - 5.72) <= 0.6 else 'aviso')
+
+
 # ---------------------------------------------------------------- fontes online
 def baixar(url, dados=None):
     import importar_saude_vias as isv
@@ -487,6 +509,7 @@ if __name__ == '__main__':
     d = json.load(open(SINISTROS, encoding='utf-8'))
     conferir_artigo(d['estudo_morbidade_piaui_2010_2023'])
     consistencia_interna(d['estudo_morbidade_piaui_2010_2023'])
+    conferir_tendencias_comparacao(d)
     if ONLINE:
         oficial = conferir_datasus(d['estudo_morbidade_piaui_2010_2023'])[0]
         conferir_codigo_macro(oficial)

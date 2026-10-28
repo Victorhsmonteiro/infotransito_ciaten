@@ -593,22 +593,46 @@ function discutirNoChat(){
    Posição = dois indicadores à escolha; tamanho = um terceiro; cor = nível de atenção do mapa.
 ========================================================= */
 const CMP_METRICAS = {
-  taxa_internacao_100mil: { rotulo: 'Prevalência: internações por 100 mil hab.', curto: 'Prevalência (internações/100 mil)', ref: true, fmt: v => fmt(v, 1) },
-  taxa_obitos_sim_100mil_ano: { rotulo: 'Óbitos (SIM) por 100 mil hab. ao ano', curto: 'Óbitos/100 mil ao ano', ref: true, fmt: v => fmt(v, 1) },
-  obitos_sim: { rotulo: 'Óbitos (SIM) no período, total', curto: 'Óbitos no período', fmt: v => fmt(v) },
-  gasto_por_habitante_ano_reais: { rotulo: 'Gasto do SUS por habitante ao ano (R$)', curto: 'Gasto por habitante/ano', ref: true, fmt: v => 'R$ ' + fmt(v, 2) },
-  gasto_total_reais: { rotulo: 'Gasto total do SUS no período (R$ milhões)', curto: 'Gasto total', fmt: v => 'R$ ' + fmt(v / 1e6, 1) + ' mi', escala: 1e6 },
-  gasto_medio_por_internacao_reais: { rotulo: 'Gasto médio por internação (R$)', curto: 'Gasto médio/internação', ref: true, fmt: v => 'R$ ' + fmt(v, 0) },
-  letalidade_hospitalar_pct: { rotulo: 'Letalidade hospitalar (%)', curto: 'Letalidade hospitalar', ref: true, fmt: v => fmt(v, 1) + '%' },
-  internacoes: { rotulo: 'Internações no período, total', curto: 'Internações no período', fmt: v => fmt(v) }
+  taxa_internacao_100mil: { rotulo: 'Prevalência: internações registradas por sinistros de trânsito, por 100 mil hab.', eixo: 'Prevalência: internações por 100 mil hab.', curto: 'Prevalência (internações/100 mil)', ref: true, fmt: v => fmt(v, 1) },
+  taxa_obitos_sim_100mil_ano: { rotulo: 'Óbitos registrados por sinistros de trânsito (SIM), por 100 mil hab. ao ano', eixo: 'Óbitos registrados por 100 mil hab./ano', curto: 'Óbitos registrados/100 mil ao ano', ref: true, fmt: v => fmt(v, 1) },
+  obitos_sim: { rotulo: 'Óbitos registrados por sinistros de trânsito (SIM), total do período', eixo: 'Óbitos registrados no período (SIM)', curto: 'Óbitos registrados no período', fmt: v => fmt(v) },
+  gasto_por_habitante_ano_reais: { rotulo: 'Gasto registrado do SUS com sinistros de trânsito, por habitante ao ano (R$)', eixo: 'Gasto registrado do SUS por habitante/ano (R$)', curto: 'Gasto registrado por habitante/ano', ref: true, fmt: v => 'R$ ' + fmt(v, 2) },
+  gasto_total_reais: { rotulo: 'Gasto registrado do SUS com sinistros de trânsito, total do período (R$ milhões)', eixo: 'Gasto registrado do SUS, total (R$ milhões)', curto: 'Gasto registrado total', fmt: v => 'R$ ' + fmt(v / 1e6, 1) + ' mi', escala: 1e6 },
+  gasto_medio_por_internacao_reais: { rotulo: 'Gasto registrado médio por internação por sinistro de trânsito (R$)', eixo: 'Gasto registrado médio por internação (R$)', curto: 'Gasto médio registrado/internação', ref: true, fmt: v => 'R$ ' + fmt(v, 0) },
+  letalidade_hospitalar_pct: { rotulo: 'Letalidade hospitalar registrada (%)', eixo: 'Letalidade hospitalar registrada (%)', curto: 'Letalidade hospitalar', ref: true, fmt: v => fmt(v, 1) + '%' },
+  internacoes: { rotulo: 'Internações registradas por sinistros de trânsito, total do período', eixo: 'Internações registradas no período', curto: 'Internações registradas', fmt: v => fmt(v) }
 };
+// Tendência anual (VPA por Prais-Winsten, calculada em scripts/gerar_comparacao_regioes.py): só existe em 2010_2023.
+const sinalCmp = (v, c) => (v > 0 ? '+' : v < 0 ? '−' : '') + fmt(Math.abs(v), c);
+const CMP_VPA = {
+  vpa_internacoes_pct: { de: 'internacoes', rotulo: 'Tendência das internações registradas: variação anual, VPA de Prais-Winsten (%)', eixo: 'Tendência das internações (VPA, % ao ano)', curto: 'Tendência internações (VPA)' },
+  vpa_obitos_sim_pct: { de: 'obitos_sim', rotulo: 'Tendência dos óbitos registrados (SIM): variação anual, VPA de Prais-Winsten (%)', eixo: 'Tendência dos óbitos (VPA, % ao ano)', curto: 'Tendência óbitos (VPA)' },
+  vpa_gasto_corrigido_pct: { de: 'gasto_corrigido_igpm', rotulo: 'Tendência do gasto registrado a preços constantes (IGP-M): VPA de Prais-Winsten (%)', eixo: 'Tendência do gasto, preços constantes (VPA, % ao ano)', curto: 'Tendência gasto (VPA, IGP-M)' }
+};
+Object.entries(CMP_VPA).forEach(([k, v]) => { CMP_METRICAS[k] = { ...v, ref: true, vpa: true, so: '2010_2023', fmt: x => sinalCmp(x, 1) + '% a.a.' }; });
+const SIMBOLO_TEND = { Crescente: '↑', Decrescente: '↓', 'Estável': '≈' };
 // o estado guarda o total de óbitos do SIM com outro nome; os demais campos têm o mesmo nome em regiões e estado
 const CMP_CAMPO_ESTADO = { obitos_sim: 'obitos_sim_em_regioes' };
+const CMP_VPAS = Object.keys(CMP_VPA);
 const CMP_TABELA = ['taxa_internacao_100mil', 'taxa_obitos_sim_100mil_ano', 'obitos_sim', 'gasto_total_reais', 'gasto_por_habitante_ano_reais', 'gasto_medio_por_internacao_reais', 'letalidade_hospitalar_pct'];
 const CMP_NIVEL = { vermelho: 'atenção máxima', laranja: 'atenção alta', amarelo: 'abaixo da média do estado' };
+let preencherMetricasCmp = () => {};
 const cmp = { periodo: null, x: 'taxa_internacao_100mil', y: 'gasto_por_habitante_ano_reais', tam: 'obitos_sim', a: null, b: null, proximo: 'a' };
 
 const cmpDados = () => dataset.comparacao_regioes_saude.periodos[cmp.periodo];
+const cmpDisponivel = k => !CMP_METRICAS[k].so || CMP_METRICAS[k].so === cmp.periodo;
+const tabelaCmp = () => CMP_TABELA.concat(CMP_VPAS).filter(cmpDisponivel);
+// texto de uma célula: valor e, nas tendências, o símbolo (↑ crescente, ↓ decrescente, ≈ estável: o IC95% inclui zero)
+const celulaCmp = (k, r) => CMP_METRICAS[k].fmt(r[k]) + (CMP_METRICAS[k].vpa ? ' ' + SIMBOLO_TEND[r['tend_' + k]] : '');
+// copia a tendência aninhada (tendencia_anual.<série>) para campos planos, como as outras métricas
+function achatarTendenciasCmp(){
+  Object.values(dataset.comparacao_regioes_saude.periodos).forEach(per => {
+    [per.estado].concat(Object.values(per.regioes)).forEach(r => {
+      if(!r.tendencia_anual) return;
+      Object.entries(CMP_VPA).forEach(([k, v]) => { const t = r.tendencia_anual[v.de]; r[k] = t.vpa_pct; r['tend_' + k] = t.tendencia; r['ic_' + k] = t.ic95; });
+    });
+  });
+}
 
 // Correlação de Spearman (postos médios nos empates), usada para dizer se dois indicadores andam juntos entre as regiões.
 function postosCmp(v){
@@ -629,11 +653,11 @@ function spearmanCmp(x, y){
 }
 
 // Eixo que começa em zero, com ~5 marcas em passos redondos (1, 2, 5 × 10^n).
-function marcasCmp(max){
-  const bruto = (max || 1) / 5, pot = Math.pow(10, Math.floor(Math.log10(bruto))), f = bruto / pot;
+function marcasCmp(min, max){
+  const base = Math.min(min, 0), bruto = ((max - base) || 1) / 5, pot = Math.pow(10, Math.floor(Math.log10(bruto))), f = bruto / pot;
   const passo = (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * pot, marcas = [];
-  for(let v = 0; v < max + passo * 0.999; v += passo) marcas.push(+v.toFixed(10));
-  return { marcas, teto: marcas[marcas.length - 1], passo };
+  for(let v = Math.floor(base / passo + 1e-9) * passo; v < max + passo * 0.999; v += passo) marcas.push(+v.toFixed(10));
+  return { marcas, min: marcas[0], teto: marcas[marcas.length - 1], passo };
 }
 
 function iniciarComparacao(){
@@ -645,18 +669,28 @@ function iniciarComparacao(){
     sel.innerHTML = itens.map(([v, t]) => `<option value="${escapeHtml(v)}"${v === atual ? ' selected' : ''}>${escapeHtml(t)}</option>`).join('');
     return sel;
   };
+  achatarTendenciasCmp();
   cmp.periodo = Object.keys(periodos)[0];
-  const metricas = Object.entries(CMP_METRICAS).map(([k, m]) => [k, m.rotulo]);
-  opcoes('cmpPeriodo', Object.entries(periodos).map(([k, p]) => [k, p.rotulo]), cmp.periodo).addEventListener('change', e => { cmp.periodo = e.target.value; padraoRegioesCmp(); renderComparacao(); });
-  opcoes('cmpX', metricas, cmp.x).addEventListener('change', e => { cmp.x = e.target.value; renderComparacao(); });
-  opcoes('cmpY', metricas, cmp.y).addEventListener('change', e => { cmp.y = e.target.value; renderComparacao(); });
-  opcoes('cmpTam', [['nenhum', 'igual para todas']].concat(metricas), cmp.tam).addEventListener('change', e => { cmp.tam = e.target.value; renderComparacao(); });
+  // indicadores de cada seletor para o período atual; se o escolhido não existir nele (tendência em 2020–2024), volta ao padrão
+  const metricasCmp = sem => Object.entries(CMP_METRICAS).filter(([k, m]) => cmpDisponivel(k) && !(sem && m.vpa)).map(([k, m]) => [k, m.rotulo]);
+  preencherMetricasCmp = () => {
+    if(!cmpDisponivel(cmp.x)) cmp.x = 'taxa_internacao_100mil';
+    if(!cmpDisponivel(cmp.y)) cmp.y = 'gasto_por_habitante_ano_reais';
+    opcoes('cmpX', metricasCmp(false), cmp.x);
+    opcoes('cmpY', metricasCmp(false), cmp.y);
+    opcoes('cmpTam', [['nenhum', 'igual para todas']].concat(metricasCmp(true)), cmp.tam);
+  };
+  preencherMetricasCmp();
+  opcoes('cmpPeriodo', Object.entries(periodos).map(([k, p]) => [k, p.rotulo]), cmp.periodo).addEventListener('change', e => { cmp.periodo = e.target.value; preencherMetricasCmp(); padraoRegioesCmp(); renderComparacao(); });
+  document.getElementById('cmpX').addEventListener('change', e => { cmp.x = e.target.value; renderComparacao(); });
+  document.getElementById('cmpY').addEventListener('change', e => { cmp.y = e.target.value; renderComparacao(); });
+  document.getElementById('cmpTam').addEventListener('change', e => { cmp.tam = e.target.value; renderComparacao(); });
   const nomes = Object.entries(periodos[cmp.periodo].regioes).map(([k, r]) => [k, r.nome]).sort((p, q) => p[1].localeCompare(q[1], 'pt-BR'));
   opcoes('cmpA', nomes).addEventListener('change', e => { cmp.a = e.target.value; renderComparacao(); });
   opcoes('cmpB', nomes).addEventListener('change', e => { cmp.b = e.target.value; renderComparacao(); });
   document.getElementById('cmpChat').addEventListener('click', () => {
     const r = cmpDados().regioes, input = document.getElementById('askInput');
-    input.value = `Compare ${r[cmp.a].nome} e ${r[cmp.b].nome} quanto a gasto do SUS, óbitos e prevalência de internações por acidentes de transporte (${periodos[cmp.periodo].rotulo.split(' (')[0]}).`;
+    input.value = `Compare ${r[cmp.a].nome} e ${r[cmp.b].nome} quanto a gasto registrado do SUS, óbitos registrados e prevalência de internações por sinistros de trânsito (${periodos[cmp.periodo].rotulo.split(' (')[0]}).`;
     input.scrollIntoView({ behavior: 'smooth', block: 'center' });
     input.focus({ preventScroll: true });
   });
@@ -701,7 +735,8 @@ function renderLegendaCmp(){
     `<span>Tamanho: ${mt ? escapeHtml(mt.curto) : 'igual para todas'}</span>` +
     `<span class="titulo" style="margin-top:4px">Cor = nível de atenção no mapa</span>` +
     `<span>${cor('vermelho')}vermelho: ${CMP_NIVEL.vermelho}</span><span>${cor('laranja')}laranja: ${CMP_NIVEL.laranja}</span><span>${cor('amarelo')}amarelo: ${CMP_NIVEL.amarelo}</span>` +
-    `<span style="margin-top:4px">Linhas tracejadas: média do estado</span>`;
+    `<span style="margin-top:4px">Linhas tracejadas: média do estado</span>` +
+    (mx.vpa || my.vpa || mt && mt.vpa ? `<span>Tendência: VPA por regressão de Prais-Winsten, 2010–2023. ↑ crescente, ↓ decrescente, ≈ estável (o IC95% inclui zero).</span>` : '');
   document.getElementById('cmpCorr').innerHTML = cmp.x === cmp.y
     ? 'Escolha indicadores diferentes nos dois eixos para ver se andam juntos.'
     : `Entre as 12 regiões, <b>${escapeHtml(mx.curto)}</b> e <b>${escapeHtml(my.curto)}</b> têm associação ${forca}${sentido} (ρ de Spearman = ${fmt(rho, 2)}). É uma relação entre áreas, não prova de causa.`;
@@ -711,27 +746,28 @@ function renderCompararCmp(){
   const per = cmpDados(), A = per.regioes[cmp.a], B = per.regioes[cmp.b];
   const linha = k => {
     const m = CMP_METRICAS[k], va = A[k], vb = B[k], ve = per.estado[CMP_CAMPO_ESTADO[k] || k];
-    const razao = vb ? va / vb : null;
-    return `<tr><td>${escapeHtml(m.curto)}</td><td class="${va > vb ? 'maior' : ''}">${m.fmt(va)}</td><td class="${vb > va ? 'maior' : ''}">${m.fmt(vb)}</td>` +
-      `<td>${ve == null || m.escala || k === 'obitos_sim' || k === 'internacoes' ? '—' : m.fmt(ve)}</td><td>${razao == null ? '—' : '×' + fmt(razao, 2)}</td></tr>`;
+    const razao = vb && !m.vpa ? va / vb : null;   // razão entre tendências (que podem ser negativas) não faz sentido
+    return `<tr><td>${escapeHtml(m.curto)}</td><td class="${va > vb ? 'maior' : ''}">${celulaCmp(k, A)}</td><td class="${vb > va ? 'maior' : ''}">${celulaCmp(k, B)}</td>` +
+      `<td>${ve == null || m.escala || k === 'obitos_sim' || k === 'internacoes' ? '—' : celulaCmp(k, per.estado)}</td><td>${razao == null ? '—' : '×' + fmt(razao, 2)}</td></tr>`;
   };
   document.getElementById('cmpComparar').innerHTML =
     `<thead><tr><th></th><th>A: ${escapeHtml(A.nome)}</th><th>B: ${escapeHtml(B.nome)}</th><th>Estado</th><th>A÷B</th></tr></thead><tbody>` +
-    CMP_TABELA.map(linha).join('') + '</tbody>';
+    tabelaCmp().map(linha).join('') + '</tbody>';
 }
 
 function renderTabelaCmp(){
   const per = cmpDados(), ordem = Object.entries(per.regioes).sort((p, q) => q[1][cmp.y] - p[1][cmp.y]);
-  const cab = CMP_TABELA.map(k => `<th>${escapeHtml(CMP_METRICAS[k].curto)}</th>`).join('');
+  const cab = tabelaCmp().map(k => `<th>${escapeHtml(CMP_METRICAS[k].curto)}</th>`).join('');
   document.getElementById('cmpTabela').innerHTML =
     `<thead><tr><th>Região de saúde (ordenada pelo eixo vertical)</th><th>Macrorregião</th><th>Cor no mapa</th>${cab}</tr></thead><tbody>` +
     ordem.map(([k, r]) => `<tr><td>${escapeHtml(r.nome)}</td><td>${escapeHtml(r.macrorregiao)}</td><td>${escapeHtml(r.nivel_atencao_mapa)}</td>` +
-      CMP_TABELA.map(m => `<td>${CMP_METRICAS[m].fmt(r[m])}</td>`).join('') + '</tr>').join('') + '</tbody>';
+      tabelaCmp().map(m => `<td>${celulaCmp(m, r)}</td>`).join('') + '</tr>').join('') + '</tbody>';
   const d = dataset.comparacao_regioes_saude, f = d.fonte;
   document.getElementById('cmpNota').innerHTML =
     `<p><b>Fontes.</b> ${escapeHtml(f.internacoes_obitos_hospitalares_gasto)}. ${escapeHtml(f.obitos_sim)}. População: ${escapeHtml(f.populacao)}. ` +
     `Prevalência: ${escapeHtml(cmp.periodo === '2010_2023' ? f.prevalencia_2010_2023 : f.prevalencia_2020_2024)}.</p>` +
     `<p class="mt-2"><b>Limites.</b></p><ul class="plano-motivos">${d.limites.map(l => `<li>${escapeHtml(l)}</li>`).join('')}</ul>` +
+    (per.regioes[Object.keys(per.regioes)[0]].tendencia_anual ? `<p class="mt-2"><b>Tendência (↑ ↓ ≈).</b> ${escapeHtml(f.tendencia_anual)}. ↑ = crescente, ↓ = decrescente, ≈ = estável (o IC95% inclui zero).</p>` : '') +
     `<p><b>Leitura.</b> ${per.leitura.map(escapeHtml).join(' ')}</p>`;
 }
 
@@ -743,20 +779,23 @@ function desenharGraficoCmp(){
   const m = { l: W < 480 ? 50 : 62, r: 18, t: 14, b: 50 };
   const mx = CMP_METRICAS[cmp.x], my = CMP_METRICAS[cmp.y], mt = CMP_METRICAS[cmp.tam];
   const ref = k => CMP_METRICAS[k].ref ? estado[k] : null;
-  const maxX = Math.max(...regs.map(([, r]) => r[cmp.x]), ref(cmp.x) || 0), maxY = Math.max(...regs.map(([, r]) => r[cmp.y]), ref(cmp.y) || 0);
-  const tx = marcasCmp(maxX * 1.06), ty = marcasCmp(maxY * 1.06);
-  const px = v => m.l + v / tx.teto * (W - m.l - m.r), py = v => H - m.b - v / ty.teto * (H - m.t - m.b);
+  const lim = k => { const v = regs.map(([, r]) => r[k]).concat(ref(k) == null ? [] : [ref(k)]); return [Math.min(...v), Math.max(...v)]; };
+  const [minX, maxX] = lim(cmp.x), [minY, maxY] = lim(cmp.y);
+  const tx = marcasCmp(minX < 0 ? minX * 1.06 : 0, maxX * 1.06), ty = marcasCmp(minY < 0 ? minY * 1.06 : 0, maxY * 1.06);
+  const px = v => m.l + (v - tx.min) / (tx.teto - tx.min) * (W - m.l - m.r), py = v => H - m.b - (v - ty.min) / (ty.teto - ty.min) * (H - m.t - m.b);
   const maxT = mt ? Math.max(...regs.map(([, r]) => r[cmp.tam])) : 1;
   const raio = r => mt ? 7 + (W < 480 ? 14 : 20) * Math.sqrt(r[cmp.tam] / maxT) : 10;
   const eixoNum = (met, passo, v) => fmt(v / (met.escala || 1), (passo / (met.escala || 1)) < 1 ? 1 : 0);
 
   let s = `<g class="cmp-grade">`;
-  ty.marcas.forEach(v => { s += `<line x1="${m.l}" x2="${W - m.r}" y1="${py(v)}" y2="${py(v)}"/>`; });
+  ty.marcas.forEach(v => { s += `<line${v === 0 && ty.min < 0 ? ' class="cmp-zero"' : ''} x1="${m.l}" x2="${W - m.r}" y1="${py(v)}" y2="${py(v)}"/>`; });
+  if(tx.min < 0) s += `<line class="cmp-zero" x1="${px(0)}" x2="${px(0)}" y1="${m.t}" y2="${H - m.b}"/>`;
   s += `</g><g class="cmp-eixo">`;
   ty.marcas.forEach(v => { s += `<text x="${m.l - 8}" y="${py(v) + 4}" text-anchor="end">${eixoNum(my, ty.passo, v)}</text>`; });
   tx.marcas.forEach(v => { s += `<text x="${px(v)}" y="${H - m.b + 16}" text-anchor="middle">${eixoNum(mx, tx.passo, v)}</text>`; });
-  s += `</g><text class="cmp-eixo-titulo" x="${(m.l + W - m.r) / 2}" y="${H - 8}" text-anchor="middle">${escapeHtml(mx.rotulo)}</text>`;
-  s += `<text class="cmp-eixo-titulo" transform="translate(13 ${(m.t + H - m.b) / 2}) rotate(-90)" text-anchor="middle">${escapeHtml(my.rotulo)}</text>`;
+  const titulo = (met, folga) => met.eixo.length * 6.4 <= folga ? met.eixo : met.curto;   // título longo demais cai para o nome curto
+  s += `</g><text class="cmp-eixo-titulo" x="${(m.l + W - m.r) / 2}" y="${H - 8}" text-anchor="middle">${escapeHtml(titulo(mx, W - m.l - m.r))}</text>`;
+  s += `<text class="cmp-eixo-titulo" transform="translate(13 ${(m.t + H - m.b) / 2}) rotate(-90)" text-anchor="middle">${escapeHtml(titulo(my, H - m.t - m.b))}</text>`;
   const rx = ref(cmp.x), ry = ref(cmp.y);
   if(rx != null) s += `<line class="cmp-ref" x1="${px(rx)}" x2="${px(rx)}" y1="${m.t}" y2="${H - m.b}"/><text class="cmp-ref-txt" x="${px(rx) + 4}" y="${m.t + 9}">estado</text>`;
   if(ry != null) s += `<line class="cmp-ref" x1="${m.l}" x2="${W - m.r}" y1="${py(ry)}" y2="${py(ry)}"/><text class="cmp-ref-txt" x="${W - m.r - 2}" y="${py(ry) - 4}" text-anchor="end">estado</text>`;
@@ -795,7 +834,7 @@ function ligarGraficoCmp(){
   const dica = (g, cx, cy) => {
     const r = cmpDados().regioes[g.dataset.k];
     tip.innerHTML = `<b>${escapeHtml(r.nome)}</b><br><span class="sub">macrorregião ${escapeHtml(r.macrorregiao)} · mapa: ${escapeHtml(r.nivel_atencao_mapa)}</span>` +
-      CMP_TABELA.map(k => `<div class="linha"><span>${escapeHtml(CMP_METRICAS[k].curto)}</span><span>${CMP_METRICAS[k].fmt(r[k])}</span></div>`).join('') +
+      tabelaCmp().map(k => `<div class="linha"><span>${escapeHtml(CMP_METRICAS[k].curto)}</span><span>${celulaCmp(k, r)}</span></div>`).join('') +
       `<span class="sub">${fmt(r.pct_do_gasto_estadual, 1)}% do gasto e ${fmt(r.pct_das_internacoes_estaduais, 1)}% das internações do estado</span>`;
     tip.hidden = false;
     const cw = wrap.clientWidth, th = tip.offsetHeight, tw = tip.offsetWidth;
@@ -1950,7 +1989,7 @@ async function askProviders(providers, onStatus){
 }
 
 /* Cache das respostas (pergunta normalizada -> texto), só no navegador do visitante. */
-const CACHE_PREFIX = 'infotransito:v4:';   // mude a versão quando o prompt ou os dados mudarem, para não servir respostas antigas
+const CACHE_PREFIX = 'infotransito:v6:';   // mude a versão quando o prompt ou os dados mudarem, para não servir respostas antigas
 function cacheGet(question){
   try{ return JSON.parse(localStorage.getItem(CACHE_PREFIX + normalize(question).trim())); }catch(_){ return null; }
 }
@@ -2087,8 +2126,9 @@ async function askQuestion(question){
     "Vermelho = atenção máxima, laranja = atenção alta, amarelo = abaixo da média do estado; a regra está em 'metodo'. " +
     "São contados no município de residência da vítima, não no local do sinistro; rodovias estaduais aparecem só como " +
     "traçado (OpenStreetMap), sem sinistros georreferenciados. " +
-    "(8) 'comparacao_regioes_saude' compara as 12 regiões de saúde em prevalência (taxa de internação por 100 mil hab.), óbitos " +
-    "e gasto do SUS com as internações, em dois períodos SEPARADOS: '2010_2023' (o do artigo) e '2020_2024' (o do mapa). O gasto " +
+    "(8) 'comparacao_regioes_saude' compara as 12 regiões de saúde em prevalência (taxa de internações registradas por 100 mil " +
+    "hab.), óbitos registrados e gasto registrado do SUS com as internações, SEMPRE por sinistros de trânsito (acidentes de " +
+    "transporte terrestre, CID-10 V01-V89) e só o que foi registrado (AIH no SIH/SUS, declarações de óbito no SIM), em dois períodos SEPARADOS: '2010_2023' (o do artigo) e '2020_2024' (o do mapa). O gasto " +
     "é o valor pago pelo SUS nas AIH, em reais nominais (sem correção pelo IGP-M), obtido no TABNET: o artigo não traz gasto por " +
     "região de saúde. Os óbitos do SIM (residentes, todas as vias) são a medida mais completa; 'obitos_hospitalares' são só os que " +
     "ocorreram no hospital. Nunca misture números dos dois períodos, nem com os de 'atencao_territorial', sem dizer o período.\n\n" +
@@ -2111,8 +2151,8 @@ async function askQuestion(question){
     "por indicador, com os números lado a lado e a unidade (R$, por 100 mil hab., %); ao comparar duas regiões, dê a razão " +
     "(\"1,6 vez\") só se ela puder ser calculada dos números enviados; (3) uma frase de cautela: relação entre áreas não é causa; " +
     "o gasto acompanha o registro hospitalar e é nominal (regiões com poucas internações registradas, como Vale do Rio Guaribas e " +
-    "Chapada Vale do Rio Itaim, parecem gastar menos e ainda assim têm óbitos altos). Cite 'leitura' e 'correlacao_entre_regioes' " +
-    "como estão (é correlação de Spearman entre 12 regiões; diga forte, moderada ou fraca, nunca causa). Prevalência é a taxa de " +
+    "Chapada Vale do Rio Itaim, parecem gastar menos e ainda assim têm óbitos altos). Em '2010_2023' cada região traz 'tendencia_anual': VPA (variação percentual anual) por regressão de Prais-Winsten das internações, dos óbitos registrados e do gasto registrado a preços constantes (IGP-M), com IC95% e 'tendencia'; só diga que algo cresce ou cai quando 'tendencia' for 'Crescente' ou 'Decrescente' (IC95% sem o zero), e diga que a VPA vem de contagens anuais. Em '2020_2024' não há VPA (cinco anos são poucos); diga isso se pedirem tendência nesse período. Cite 'leitura' e 'correlacao_entre_regioes' " +
+    "como estão (é correlação de Spearman entre 12 regiões; diga forte, moderada ou fraca, nunca causa). Escreva sempre 'gasto registrado' e 'óbitos registrados por sinistros de trânsito' (nunca 'gasto total' ou 'mortes no trânsito' sem o 'registrado'). Prevalência é a taxa de " +
     "internação por 100 mil hab., não óbitos. Se faltar o número pedido (gasto por município, por exemplo), diga que a base só " +
     "chega até a região de saúde.\n\n" +
     "NÚMEROS E TENDÊNCIAS: escreva números no formato brasileiro (vírgula decimal, ponto nos milhares) e sempre com unidade. " +

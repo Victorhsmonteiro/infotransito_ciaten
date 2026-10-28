@@ -112,13 +112,14 @@
     </section>
 
     <section class="mb-11" id="cmpSec" hidden>
-      <p class="section-label mb-4">Comparação entre regiões de saúde <span class="font-normal normal-case tracking-normal text-faint">— gasto do SUS, óbitos e prevalência de internações por acidentes de transporte (SIH/SUS e SIM, TABNET/DATASUS)</span></p>
+      <p class="section-label mb-4">Comparação entre regiões de saúde <span class="font-normal normal-case tracking-normal text-faint">— gasto e óbitos registrados e prevalência de internações por sinistros de trânsito (SIH/SUS e SIM, TABNET/DATASUS)</span></p>
       <div class="barra-ctl">
         <label class="campo"><span>Período</span><select class="ctl" id="cmpPeriodo"></select></label>
         <label class="campo"><span>Eixo horizontal</span><select class="ctl" id="cmpX"></select></label>
         <label class="campo"><span>Eixo vertical</span><select class="ctl" id="cmpY"></select></label>
         <label class="campo"><span>Tamanho da bolha</span><select class="ctl" id="cmpTam"></select></label>
       </div>
+      <p class="nota" style="margin-top:0;margin-bottom:10px">Tudo aqui é o que foi <b>registrado</b> e se refere a <b>sinistros de trânsito</b> (acidentes de transporte terrestre, CID-10 V01–V89), por município de residência da vítima. <b>Gasto</b> = valor pago pelo SUS nas internações registradas no SIH/SUS (reais nominais); <b>óbitos</b> = óbitos registrados no SIM; <b>prevalência</b> = internações registradas por 100 mil hab. O que não foi registrado, ou foi registrado com outra causa, não entra.</p>
       <div class="cmp-grid rounded-[var(--radius)] border border-border bg-panel">
         <div class="cmp-grafico" id="cmpGrafico">
           <svg id="cmpSvg" role="img" aria-label="Gráfico de bolhas comparando as 12 regiões de saúde do Piauí; os mesmos números estão na tabela abaixo do gráfico"></svg>

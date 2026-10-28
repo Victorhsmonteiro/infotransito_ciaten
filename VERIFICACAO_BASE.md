@@ -3,7 +3,7 @@
 Gerado por `scripts/verificar_base.py` em 2026-10-28. Referência: Bastos FGT et al. Rev Bras Epidemiol 2026;29:e260044 (DOI 10.1590/1980-549720260044).
 Fontes consultadas, todas citadas no artigo: TABNET/DATASUS: SIH/SUS e SIM; IBGE: Censo 2022 (tabela 4714); Banco Central: IGP-M (SGS 189).
 
-**Resumo:** aviso: 2, ok: 25
+**Resumo:** aviso: 2, ok: 28
 
 ## Pontos de atenção
 
@@ -48,3 +48,11 @@ Fontes consultadas, todas citadas no artigo: TABNET/DATASUS: SIH/SUS e SIM; IBGE
 | Total corrigido (R$ 128,0 mi) / internações = valor médio corrigido (R$ 1.659,40) | 1659.4 | 1595.0 | aviso |
 | Dias / internações = permanência média 4,9 | 4.9 | 4.89 | ok |
 | Tabela 2, 40–59 anos: limite inferior do IC95 igual à própria VPA | IC95 mín. < VPA < IC95 máx. | VPA -2.55 (IC95 -2.55; 0.6) | aviso |
+
+### gráfico de comparação (Prais-Winsten)
+
+| Verificação | Esperado | Obtido | Resultado |
+|---|---|---|---|
+| VPA das internações por região (contagens) x VPA da taxa (Tabela 1): maior diferença em pontos percentuais | até 0,6 ponto percentual | 0.50 | ok |
+| Mesma classificação de tendência (crescente/estável/decrescente) que o artigo, nas 12 regiões | 12 iguais | 12 iguais | ok |
+| VPA das internações do estado (contagens) x VPA da taxa do artigo (5,72) | 5.72 | 5.97 | ok |

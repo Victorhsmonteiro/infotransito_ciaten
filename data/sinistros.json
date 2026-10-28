@@ -27144,24 +27144,33 @@
     "cerrado": [
       "estudo_morbidade_piaui_2010_2023.composicao_macrorregioes",
       "estudo_morbidade_piaui_2010_2023.taxa_internacao_hospitalar_100mil_hab.por_macrorregiao"
+    ],
+    "vpa": [
+      "comparacao_regioes_saude"
+    ],
+    "prais": [
+      "comparacao_regioes_saude"
     ]
   },
   "comparacao_regioes_saude": {
-    "como_usar": "Compara as 12 regiões de saúde em três medidas: prevalência (taxa de internação por 100 mil hab.), óbitos e gasto do SUS com as internações por acidentes de transporte terrestre. Há dois períodos; não misture números de períodos diferentes. Cite os números e os textos de \"leitura\" como estão. Em \"regioes\", cada região traz as três medidas e a participação no total do estado.",
+    "como_usar": "Compara as 12 regiões de saúde em três medidas REGISTRADAS e relacionadas a sinistros de trânsito (acidentes de transporte terrestre, CID-10 V01-V89): prevalência (taxa de internações registradas por 100 mil hab.), óbitos registrados (SIM) e gasto registrado do SUS com essas internações (SIH/SUS). Há dois períodos; não misture números de períodos diferentes. Cite os números e os textos de \"leitura\" como estão. Em \"regioes\", cada região traz as três medidas e a participação no total do estado.",
     "fonte": {
       "internacoes_obitos_hospitalares_gasto": "SIH/SUS (TABNET/DATASUS, formulário frpi), V01-V89, por região de saúde de RESIDÊNCIA; \"gasto\" é o valor total pago pelo SUS nas AIH",
       "obitos_sim": "SIM (TABNET/DATASUS, formulário ext10pi), óbitos por residência, V01-V89 (todos os óbitos, não só os hospitalares)",
       "populacao": "IBGE, Censo 2022 (tabela 4714), somada por região de saúde",
       "prevalencia_2010_2023": "taxa média de internação da Tabela 1 do artigo (Bastos et al. 2026; população projetada pelo Ministério da Saúde)",
       "prevalencia_2020_2024": "taxa de internações de atencao_territorial (população do Censo 2022)",
+      "tendencia_anual": "só em 2010_2023: VPA (variação percentual anual) por regressão de Prais-Winsten sobre log10 de contagens anuais 2010-2023 (SIH/SUS por ano de processamento; SIM por ano do óbito), com IC95% e tendência (Crescente/Decrescente se o IC95% não inclui zero; senão Estável); gasto corrigido pelo IGP-M do Banco Central (SGS 189), de junho de cada ano a dezembro de 2023",
       "consultado_em": "2026-10-28",
       "gerado_por": "scripts/gerar_comparacao_regioes.py"
     },
     "limites": [
+      "Todos os números são REGISTRADOS e se referem a sinistros de trânsito (acidentes de transporte terrestre, CID-10 V01-V89): gasto = valor pago pelo SUS nas AIH registradas no SIH/SUS; óbitos = óbitos registrados no SIM; prevalência = internações registradas. O que não foi registrado, ou foi registrado com outra causa, não entra, e o gasto não inclui o que o SUS não pagou nem o setor privado. Chame sempre de \"gasto registrado\" e \"óbitos registrados\", nunca de gasto ou mortes totais.",
       "O artigo não traz gasto por região de saúde (a Tabela 3 só chega às macrorregiões); os valores regionais vêm do TABNET, a mesma fonte do artigo, e reproduzem os seus totais.",
       "Valores nominais, sem correção pelo IGP-M. O gasto médio por internação cai no artigo após a correção, mas em valores nominais ele subiu; a tabela de procedimentos do SUS não inclui o financiamento complementar de estados e municípios, então o gasto é subestimado.",
       "Gasto e internações dependem do registro da causa externa no SIH: regiões como Vale do Rio Guaribas e Chapada Vale do Rio Itaim registram poucas internações e podem estar subestimadas, o que reduz o gasto aparente. Por isso os óbitos do SIM são a medida mais completa.",
       "Gasto por habitante usa a população do Censo 2022 em todo o período. Entre Rios inclui Teresina, polo hospitalar do estado, mas as internações são por residência do paciente.",
+      "Tendência anual (VPA): vem de contagens, não de taxas (a população anual projetada não está na base); nas internações isso difere em menos de 0,5 ponto percentual ao ano da VPA da Tabela 1 do artigo. A correção pelo IGP-M segue um critério próprio (junho de cada ano até dezembro de 2023), pois o do artigo não foi reproduzido. Em 2020_2024 não há VPA: cinco anos são pouco para a regressão.",
       "Dados por área (ecológicos): mostram associação entre regiões, não causa."
     ],
     "periodos": {
@@ -27178,7 +27187,33 @@
           "letalidade_hospitalar_pct": 2.33,
           "gasto_total_reais": 90195671.0,
           "gasto_medio_por_internacao_reais": 1123.92,
-          "gasto_por_habitante_ano_reais": 1.97
+          "gasto_por_habitante_ano_reais": 1.97,
+          "tendencia_anual": {
+            "internacoes": {
+              "vpa_pct": 5.97,
+              "ic95": [
+                1.26,
+                10.9
+              ],
+              "tendencia": "Crescente"
+            },
+            "obitos_sim": {
+              "vpa_pct": -0.68,
+              "ic95": [
+                -2.7,
+                1.39
+              ],
+              "tendencia": "Estável"
+            },
+            "gasto_corrigido_igpm": {
+              "vpa_pct": 0.92,
+              "ic95": [
+                -4.23,
+                6.34
+              ],
+              "tendencia": "Estável"
+            }
+          }
         },
         "regioes": {
           "tabuleiros_do_alto_parnaiba": {
@@ -27195,7 +27230,33 @@
             "gasto_medio_por_internacao_reais": 917.14,
             "gasto_por_habitante_ano_reais": 2.03,
             "pct_do_gasto_estadual": 1.6,
-            "pct_das_internacoes_estaduais": 2.0
+            "pct_das_internacoes_estaduais": 2.0,
+            "tendencia_anual": {
+              "internacoes": {
+                "vpa_pct": 11.13,
+                "ic95": [
+                  4.49,
+                  18.19
+                ],
+                "tendencia": "Crescente"
+              },
+              "obitos_sim": {
+                "vpa_pct": 1.78,
+                "ic95": [
+                  -2.96,
+                  6.76
+                ],
+                "tendencia": "Estável"
+              },
+              "gasto_corrigido_igpm": {
+                "vpa_pct": 5.84,
+                "ic95": [
+                  -0.45,
+                  12.54
+                ],
+                "tendencia": "Estável"
+              }
+            }
           },
           "vale_do_rio_guaribas": {
             "nome": "Vale do Rio Guaribas",
@@ -27211,7 +27272,33 @@
             "gasto_medio_por_internacao_reais": 1324.9,
             "gasto_por_habitante_ano_reais": 1.12,
             "pct_do_gasto_estadual": 4.1,
-            "pct_das_internacoes_estaduais": 3.5
+            "pct_das_internacoes_estaduais": 3.5,
+            "tendencia_anual": {
+              "internacoes": {
+                "vpa_pct": -13.66,
+                "ic95": [
+                  -19.14,
+                  -7.82
+                ],
+                "tendencia": "Decrescente"
+              },
+              "obitos_sim": {
+                "vpa_pct": -1.92,
+                "ic95": [
+                  -4.72,
+                  0.97
+                ],
+                "tendencia": "Estável"
+              },
+              "gasto_corrigido_igpm": {
+                "vpa_pct": -13.88,
+                "ic95": [
+                  -23.52,
+                  -3.03
+                ],
+                "tendencia": "Decrescente"
+              }
+            }
           },
           "chapada_vale_do_rio_itaim": {
             "nome": "Chapada Vale do Rio Itaim",
@@ -27227,7 +27314,33 @@
             "gasto_medio_por_internacao_reais": 1494.99,
             "gasto_por_habitante_ano_reais": 0.84,
             "pct_do_gasto_estadual": 1.7,
-            "pct_das_internacoes_estaduais": 1.2
+            "pct_das_internacoes_estaduais": 1.2,
+            "tendencia_anual": {
+              "internacoes": {
+                "vpa_pct": -11.19,
+                "ic95": [
+                  -19.89,
+                  -1.54
+                ],
+                "tendencia": "Decrescente"
+              },
+              "obitos_sim": {
+                "vpa_pct": 0.79,
+                "ic95": [
+                  -2.98,
+                  4.71
+                ],
+                "tendencia": "Estável"
+              },
+              "gasto_corrigido_igpm": {
+                "vpa_pct": -13.58,
+                "ic95": [
+                  -25.71,
+                  0.54
+                ],
+                "tendencia": "Estável"
+              }
+            }
           },
           "serra_da_capivara": {
             "nome": "Serra da Capivara",
@@ -27243,7 +27356,33 @@
             "gasto_medio_por_internacao_reais": 1037.71,
             "gasto_por_habitante_ano_reais": 1.85,
             "pct_do_gasto_estadual": 4.5,
-            "pct_das_internacoes_estaduais": 4.9
+            "pct_das_internacoes_estaduais": 4.9,
+            "tendencia_anual": {
+              "internacoes": {
+                "vpa_pct": 7.76,
+                "ic95": [
+                  5.96,
+                  9.58
+                ],
+                "tendencia": "Crescente"
+              },
+              "obitos_sim": {
+                "vpa_pct": 2.54,
+                "ic95": [
+                  -0.83,
+                  6.02
+                ],
+                "tendencia": "Estável"
+              },
+              "gasto_corrigido_igpm": {
+                "vpa_pct": 2.86,
+                "ic95": [
+                  1.11,
+                  4.63
+                ],
+                "tendencia": "Crescente"
+              }
+            }
           },
           "carnaubais": {
             "nome": "Carnaubais",
@@ -27259,7 +27398,33 @@
             "gasto_medio_por_internacao_reais": 964.57,
             "gasto_por_habitante_ano_reais": 2.69,
             "pct_do_gasto_estadual": 6.7,
-            "pct_das_internacoes_estaduais": 7.8
+            "pct_das_internacoes_estaduais": 7.8,
+            "tendencia_anual": {
+              "internacoes": {
+                "vpa_pct": 13.07,
+                "ic95": [
+                  1.17,
+                  26.37
+                ],
+                "tendencia": "Crescente"
+              },
+              "obitos_sim": {
+                "vpa_pct": -1.52,
+                "ic95": [
+                  -4.24,
+                  1.29
+                ],
+                "tendencia": "Estável"
+              },
+              "gasto_corrigido_igpm": {
+                "vpa_pct": 6.15,
+                "ic95": [
+                  -1.75,
+                  14.69
+                ],
+                "tendencia": "Estável"
+              }
+            }
           },
           "vale_do_caninde": {
             "nome": "Vale do Canindé",
@@ -27275,7 +27440,33 @@
             "gasto_medio_por_internacao_reais": 908.83,
             "gasto_por_habitante_ano_reais": 1.58,
             "pct_do_gasto_estadual": 2.6,
-            "pct_das_internacoes_estaduais": 3.2
+            "pct_das_internacoes_estaduais": 3.2,
+            "tendencia_anual": {
+              "internacoes": {
+                "vpa_pct": -2.47,
+                "ic95": [
+                  -6.47,
+                  1.71
+                ],
+                "tendencia": "Estável"
+              },
+              "obitos_sim": {
+                "vpa_pct": -2.58,
+                "ic95": [
+                  -4.27,
+                  -0.86
+                ],
+                "tendencia": "Decrescente"
+              },
+              "gasto_corrigido_igpm": {
+                "vpa_pct": -6.91,
+                "ic95": [
+                  -13.4,
+                  0.08
+                ],
+                "tendencia": "Estável"
+              }
+            }
           },
           "cocais": {
             "nome": "Cocais",
@@ -27291,7 +27482,33 @@
             "gasto_medio_por_internacao_reais": 1277.49,
             "gasto_por_habitante_ano_reais": 1.4,
             "pct_do_gasto_estadual": 8.7,
-            "pct_das_internacoes_estaduais": 7.7
+            "pct_das_internacoes_estaduais": 7.7,
+            "tendencia_anual": {
+              "internacoes": {
+                "vpa_pct": 3.61,
+                "ic95": [
+                  -2.75,
+                  10.39
+                ],
+                "tendencia": "Estável"
+              },
+              "obitos_sim": {
+                "vpa_pct": -0.33,
+                "ic95": [
+                  -2.87,
+                  2.28
+                ],
+                "tendencia": "Estável"
+              },
+              "gasto_corrigido_igpm": {
+                "vpa_pct": -3.15,
+                "ic95": [
+                  -9.86,
+                  4.07
+                ],
+                "tendencia": "Estável"
+              }
+            }
           },
           "chapada_das_mangabeiras": {
             "nome": "Chapada das Mangabeiras",
@@ -27307,7 +27524,33 @@
             "gasto_medio_por_internacao_reais": 1009.91,
             "gasto_por_habitante_ano_reais": 1.71,
             "pct_do_gasto_estadual": 5.0,
-            "pct_das_internacoes_estaduais": 5.5
+            "pct_das_internacoes_estaduais": 5.5,
+            "tendencia_anual": {
+              "internacoes": {
+                "vpa_pct": 3.77,
+                "ic95": [
+                  -2.68,
+                  10.65
+                ],
+                "tendencia": "Estável"
+              },
+              "obitos_sim": {
+                "vpa_pct": -0.96,
+                "ic95": [
+                  -3.38,
+                  1.51
+                ],
+                "tendencia": "Estável"
+              },
+              "gasto_corrigido_igpm": {
+                "vpa_pct": 1.45,
+                "ic95": [
+                  -0.83,
+                  3.77
+                ],
+                "tendencia": "Estável"
+              }
+            }
           },
           "vale_do_sambito": {
             "nome": "Vale do Sambito",
@@ -27323,7 +27566,33 @@
             "gasto_medio_por_internacao_reais": 1218.42,
             "gasto_por_habitante_ano_reais": 1.55,
             "pct_do_gasto_estadual": 2.5,
-            "pct_das_internacoes_estaduais": 2.3
+            "pct_das_internacoes_estaduais": 2.3,
+            "tendencia_anual": {
+              "internacoes": {
+                "vpa_pct": -1.28,
+                "ic95": [
+                  -10.02,
+                  8.31
+                ],
+                "tendencia": "Estável"
+              },
+              "obitos_sim": {
+                "vpa_pct": -3.65,
+                "ic95": [
+                  -5.29,
+                  -1.98
+                ],
+                "tendencia": "Decrescente"
+              },
+              "gasto_corrigido_igpm": {
+                "vpa_pct": -5.99,
+                "ic95": [
+                  -14.95,
+                  3.92
+                ],
+                "tendencia": "Estável"
+              }
+            }
           },
           "vale_dos_rios_piaui_e_itaueiras": {
             "nome": "Vale dos Rios Piauí e Itaueiras",
@@ -27339,7 +27608,33 @@
             "gasto_medio_por_internacao_reais": 1004.77,
             "gasto_por_habitante_ano_reais": 2.35,
             "pct_do_gasto_estadual": 7.6,
-            "pct_das_internacoes_estaduais": 8.4
+            "pct_das_internacoes_estaduais": 8.4,
+            "tendencia_anual": {
+              "internacoes": {
+                "vpa_pct": 7.23,
+                "ic95": [
+                  4.31,
+                  10.24
+                ],
+                "tendencia": "Crescente"
+              },
+              "obitos_sim": {
+                "vpa_pct": -1.35,
+                "ic95": [
+                  -2.82,
+                  0.15
+                ],
+                "tendencia": "Estável"
+              },
+              "gasto_corrigido_igpm": {
+                "vpa_pct": 1.82,
+                "ic95": [
+                  -2.31,
+                  6.12
+                ],
+                "tendencia": "Estável"
+              }
+            }
           },
           "entre_rios": {
             "nome": "Entre Rios",
@@ -27355,7 +27650,33 @@
             "gasto_medio_por_internacao_reais": 1185.08,
             "gasto_por_habitante_ano_reais": 2.7,
             "pct_do_gasto_estadual": 52.0,
-            "pct_das_internacoes_estaduais": 49.3
+            "pct_das_internacoes_estaduais": 49.3,
+            "tendencia_anual": {
+              "internacoes": {
+                "vpa_pct": 8.84,
+                "ic95": [
+                  2.4,
+                  15.69
+                ],
+                "tendencia": "Crescente"
+              },
+              "obitos_sim": {
+                "vpa_pct": -2.98,
+                "ic95": [
+                  -4.48,
+                  -1.47
+                ],
+                "tendencia": "Decrescente"
+              },
+              "gasto_corrigido_igpm": {
+                "vpa_pct": 3.18,
+                "ic95": [
+                  -1.82,
+                  8.44
+                ],
+                "tendencia": "Estável"
+              }
+            }
           },
           "planicie_litoranea": {
             "nome": "Planície Litorânea",
@@ -27371,16 +27692,45 @@
             "gasto_medio_por_internacao_reais": 836.59,
             "gasto_por_habitante_ano_reais": 0.67,
             "pct_do_gasto_estadual": 3.0,
-            "pct_das_internacoes_estaduais": 4.1
+            "pct_das_internacoes_estaduais": 4.1,
+            "tendencia_anual": {
+              "internacoes": {
+                "vpa_pct": -1.08,
+                "ic95": [
+                  -23.98,
+                  28.72
+                ],
+                "tendencia": "Estável"
+              },
+              "obitos_sim": {
+                "vpa_pct": 2.56,
+                "ic95": [
+                  -0.44,
+                  5.65
+                ],
+                "tendencia": "Estável"
+              },
+              "gasto_corrigido_igpm": {
+                "vpa_pct": -14.58,
+                "ic95": [
+                  -29.51,
+                  3.5
+                ],
+                "tendencia": "Estável"
+              }
+            }
           }
         },
         "leitura": [
-          "Maior gasto total do SUS com internações por acidentes de transporte: Entre Rios, R$ 46,9 milhões (52,0% do gasto estadual, com 49,3% das internações).",
-          "Maior gasto por habitante por ano: Entre Rios, R$ 2,70 (estado: R$ 1,97).",
-          "Maior gasto médio por internação: Chapada Vale do Rio Itaim, R$ 1.494,99 (estado: R$ 1.123,92).",
-          "Maior taxa de óbitos (SIM, residentes): Vale do Rio Guaribas, 43,1 por 100 mil hab. por ano (estado: 30,6).",
-          "Maior prevalência (taxa de internação): Carnaubais, 272,6 por 100 mil hab. (estado: 176,1).",
-          "Óbitos acima da média do estado com internações abaixo de 60% da média (sinal de possível falta de registro da causa externa no SIH, que também reduz o gasto aparente): Vale do Rio Guaribas, Chapada Vale do Rio Itaim."
+          "Maior gasto registrado do SUS com internações por sinistros de trânsito: Entre Rios, R$ 46,9 milhões (52,0% do gasto estadual, com 49,3% das internações).",
+          "Maior gasto registrado por habitante por ano: Entre Rios, R$ 2,70 (estado: R$ 1,97).",
+          "Maior gasto registrado médio por internação: Chapada Vale do Rio Itaim, R$ 1.494,99 (estado: R$ 1.123,92).",
+          "Maior taxa de óbitos registrados por sinistros de trânsito (SIM, residentes): Vale do Rio Guaribas, 43,1 por 100 mil hab. por ano (estado: 30,6).",
+          "Maior prevalência (taxa de internações registradas): Carnaubais, 272,6 por 100 mil hab. (estado: 176,1).",
+          "Óbitos acima da média do estado com internações abaixo de 60% da média (sinal de possível falta de registro da causa externa no SIH, que também reduz o gasto aparente): Vale do Rio Guaribas, Chapada Vale do Rio Itaim.",
+          "Tendência 2010-2023 de internações registradas (VPA por Prais-Winsten): estado 5,97% ao ano (crescente); crescente em 5 regiões, decrescente em 2 regiões e estável em 5 regiões; maior alta em Carnaubais (13,07% ao ano), menor em Vale do Rio Guaribas (-13,66% ao ano).",
+          "Tendência 2010-2023 de óbitos registrados (SIM) (VPA por Prais-Winsten): estado -0,68% ao ano (estável); crescente em 0 regiões, decrescente em 3 regiões e estável em 9 regiões; maior alta em Planície Litorânea (2,56% ao ano), menor em Vale do Sambito (-3,65% ao ano).",
+          "Tendência 2010-2023 de gasto registrado a preços constantes (IGP-M) (VPA por Prais-Winsten): estado 0,92% ao ano (estável); crescente em 1 região, decrescente em 1 região e estável em 10 regiões; maior alta em Carnaubais (6,15% ao ano), menor em Planície Litorânea (-14,58% ao ano)."
         ],
         "correlacao_entre_regioes": {
           "metodo": "correlação de Spearman entre as 12 regiões (n pequeno; relação entre áreas, não entre pessoas)",
@@ -27599,11 +27949,11 @@
           }
         },
         "leitura": [
-          "Maior gasto total do SUS com internações por acidentes de transporte: Entre Rios, R$ 24,5 milhões (57,3% do gasto estadual, com 52,9% das internações).",
-          "Maior gasto por habitante por ano: Entre Rios, R$ 3,95 (estado: R$ 2,62).",
-          "Maior gasto médio por internação: Vale do Rio Guaribas, R$ 2.133,74 (estado: R$ 1.305,45).",
-          "Maior taxa de óbitos (SIM, residentes): Tabuleiros do Alto Parnaíba, 51,3 por 100 mil hab. por ano (estado: 29,3).",
-          "Maior prevalência (taxa de internação): Vale dos Rios Piauí e Itaueiras, 320,9 por 100 mil hab. (estado: 200,5).",
+          "Maior gasto registrado do SUS com internações por sinistros de trânsito: Entre Rios, R$ 24,5 milhões (57,3% do gasto estadual, com 52,9% das internações).",
+          "Maior gasto registrado por habitante por ano: Entre Rios, R$ 3,95 (estado: R$ 2,62).",
+          "Maior gasto registrado médio por internação: Vale do Rio Guaribas, R$ 2.133,74 (estado: R$ 1.305,45).",
+          "Maior taxa de óbitos registrados por sinistros de trânsito (SIM, residentes): Tabuleiros do Alto Parnaíba, 51,3 por 100 mil hab. por ano (estado: 29,3).",
+          "Maior prevalência (taxa de internações registradas): Vale dos Rios Piauí e Itaueiras, 320,9 por 100 mil hab. (estado: 200,5).",
           "Óbitos acima da média do estado com internações abaixo de 60% da média (sinal de possível falta de registro da causa externa no SIH, que também reduz o gasto aparente): Vale do Rio Guaribas, Chapada Vale do Rio Itaim, Cocais, Vale do Sambito."
         ],
         "correlacao_entre_regioes": {

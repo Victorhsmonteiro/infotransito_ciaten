@@ -8,7 +8,7 @@
   "Banco Central: IGP-M (SGS 189)"
  ],
  "resumo": {
-  "ok": 25,
+  "ok": 28,
   "aviso": 2
  },
  "verificacoes": [
@@ -227,6 +227,30 @@
    "obtido": "VPA -2.55 (IC95 -2.55; 0.6)",
    "status": "aviso",
    "nota": "o artigo imprime -2,55 (-2,55; 0,60): provável erro de digitação do limite inferior (a VPA fica no centro do IC em escala log, o que daria algo perto de -5,6). A base repete o número do artigo; trate como não confiável"
+  },
+  {
+   "grupo": "gráfico de comparação (Prais-Winsten)",
+   "descricao": "VPA das internações por região (contagens) x VPA da taxa (Tabela 1): maior diferença em pontos percentuais",
+   "esperado": "até 0,6 ponto percentual",
+   "obtido": "0.50",
+   "status": "ok",
+   "nota": "a diferença vem da população, que cresce ao longo dos anos no artigo e é fixa nas contagens"
+  },
+  {
+   "grupo": "gráfico de comparação (Prais-Winsten)",
+   "descricao": "Mesma classificação de tendência (crescente/estável/decrescente) que o artigo, nas 12 regiões",
+   "esperado": "12 iguais",
+   "obtido": "12 iguais",
+   "status": "ok",
+   "nota": ""
+  },
+  {
+   "grupo": "gráfico de comparação (Prais-Winsten)",
+   "descricao": "VPA das internações do estado (contagens) x VPA da taxa do artigo (5,72)",
+   "esperado": 5.72,
+   "obtido": 5.97,
+   "status": "ok",
+   "nota": ""
   }
  ]
 }

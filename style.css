@@ -1065,7 +1065,7 @@ main .grid > section { min-width: 0; }   /* sem isso a tabela larga do ranking e
 
 /* ---- Comparação entre regiões de saúde (gráfico de bolhas em SVG) ---- */
 .cmp-grid { display: grid; grid-template-columns: minmax(0, 1fr); overflow: hidden; }
-@media (min-width: 1024px) { .cmp-grid { grid-template-columns: minmax(0, 1fr) 340px; } }
+@media (min-width: 1024px) { .cmp-grid { grid-template-columns: minmax(0, 1fr) 400px; } }
 .cmp-grafico { position: relative; min-width: 0; padding: 12px 8px 4px; }
 .cmp-grafico svg { display: block; width: 100%; height: auto; overflow: visible; }
 .cmp-lado { display: flex; min-width: 0; flex-direction: column; gap: 12px; border-top: 1px solid var(--border); padding: 14px 16px; }
@@ -1085,9 +1085,13 @@ main .grid > section { min-width: 0; }   /* sem isso a tabela larga do ranking e
 .cmp-bolha .sigla { fill: var(--primary-foreground); font-size: 12px; font-weight: 800; pointer-events: none; }
 .cmp-rotulo { fill: var(--foreground); font-size: 11px; pointer-events: none; paint-order: stroke; stroke: var(--panel); stroke-width: 3px; }
 .cmp-comparar, .cmp-tabela { width: 100%; border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.cmp-comparar { table-layout: fixed; font-size: 12px; }
+.cmp-comparar th:first-child { width: 29%; }
+.cmp-comparar th, .cmp-comparar td { padding: 5px 3px; overflow-wrap: anywhere; }
 .cmp-comparar th, .cmp-comparar td, .cmp-tabela th, .cmp-tabela td { border-bottom: 1px solid var(--border); padding: 5px 6px; text-align: right; vertical-align: top; }
 .cmp-comparar th:first-child, .cmp-comparar td:first-child, .cmp-tabela th:first-child, .cmp-tabela td:first-child { text-align: left; }
 .cmp-comparar th, .cmp-tabela th { color: var(--faint); font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
 .cmp-comparar td.maior { color: var(--amber); font-weight: 700; }
 .cmp-tabela { margin-top: 10px; min-width: 760px; }
 .cmp-chip { display: inline-block; width: 9px; height: 9px; margin-right: 5px; border-radius: 50%; }
+.cmp-grade line.cmp-zero { stroke: var(--muted-foreground); stroke-width: 1.5; }
