@@ -1,0 +1,6 @@
+.env
+node_modules/
+DADOS SINISTROS/
+
+__pycache__/
+*.pyc

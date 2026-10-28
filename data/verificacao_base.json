@@ -1,0 +1,232 @@
+{
+ "gerado_em": "2026-10-28",
+ "online": false,
+ "referencia": "Bastos FGT et al. Rev Bras Epidemiol 2026;29:e260044 (DOI 10.1590/1980-549720260044)",
+ "fontes_consultadas": [
+  "TABNET/DATASUS: SIH/SUS e SIM",
+  "IBGE: Censo 2022 (tabela 4714)",
+  "Banco Central: IGP-M (SGS 189)"
+ ],
+ "resumo": {
+  "ok": 25,
+  "aviso": 2
+ },
+ "verificacoes": [
+  {
+   "grupo": "artigo x base",
+   "descricao": "Tabela 1 (taxa de internação): linhas conferidas",
+   "esperado": "todas iguais",
+   "obtido": "29 linhas idênticas ao artigo",
+   "status": "ok",
+   "nota": ""
+  },
+  {
+   "grupo": "artigo x base",
+   "descricao": "Tabela 2 (letalidade hospitalar): linhas conferidas",
+   "esperado": "todas iguais",
+   "obtido": "29 linhas idênticas ao artigo",
+   "status": "ok",
+   "nota": ""
+  },
+  {
+   "grupo": "artigo x base",
+   "descricao": "Tabela 3 (valor médio por internação): linhas conferidas",
+   "esperado": "todas iguais",
+   "obtido": "17 linhas idênticas ao artigo",
+   "status": "ok",
+   "nota": ""
+  },
+  {
+   "grupo": "artigo x base",
+   "descricao": "Tabela 4 (permanência média): linhas conferidas",
+   "esperado": "todas iguais",
+   "obtido": "17 linhas idênticas ao artigo",
+   "status": "ok",
+   "nota": ""
+  },
+  {
+   "grupo": "artigo x base",
+   "descricao": "Tabelas 3 e 4 não trazem região de saúde",
+   "esperado": "base sem custo/permanência por região",
+   "obtido": "ok",
+   "status": "ok",
+   "nota": ""
+  },
+  {
+   "grupo": "artigo x base",
+   "descricao": "Texto do artigo: total de internações",
+   "esperado": 80251,
+   "obtido": 80251,
+   "status": "ok",
+   "nota": ""
+  },
+  {
+   "grupo": "artigo x base",
+   "descricao": "Texto do artigo: óbitos hospitalares",
+   "esperado": 1866,
+   "obtido": 1866,
+   "status": "ok",
+   "nota": ""
+  },
+  {
+   "grupo": "artigo x base",
+   "descricao": "Texto do artigo: total pago (R$)",
+   "esperado": 90200000,
+   "obtido": 90200000,
+   "status": "ok",
+   "nota": ""
+  },
+  {
+   "grupo": "artigo x base",
+   "descricao": "Texto do artigo: total corrigido IGP-M (R$)",
+   "esperado": 128000000,
+   "obtido": 128000000,
+   "status": "ok",
+   "nota": ""
+  },
+  {
+   "grupo": "artigo x base",
+   "descricao": "Texto do artigo: valor médio corrigido (R$)",
+   "esperado": 1659.4,
+   "obtido": 1659.4,
+   "status": "ok",
+   "nota": ""
+  },
+  {
+   "grupo": "artigo x base",
+   "descricao": "Texto do artigo: dias de permanência",
+   "esperado": 392047,
+   "obtido": 392047,
+   "status": "ok",
+   "nota": ""
+  },
+  {
+   "grupo": "artigo x base",
+   "descricao": "Texto do artigo: população 2022",
+   "esperado": 3271199,
+   "obtido": 3271199,
+   "status": "ok",
+   "nota": ""
+  },
+  {
+   "grupo": "artigo x base",
+   "descricao": "Texto do artigo: ano com mais internações",
+   "esperado": 2016,
+   "obtido": 2016,
+   "status": "ok",
+   "nota": ""
+  },
+  {
+   "grupo": "artigo x base",
+   "descricao": "Texto do artigo: internações em 2016",
+   "esperado": 7478,
+   "obtido": 7478,
+   "status": "ok",
+   "nota": ""
+  },
+  {
+   "grupo": "artigo x base",
+   "descricao": "Texto do artigo: taxa em 2016",
+   "esperado": 230.3,
+   "obtido": 230.3,
+   "status": "ok",
+   "nota": ""
+  },
+  {
+   "grupo": "artigo x base",
+   "descricao": "Texto do artigo: ano com menos internações",
+   "esperado": 2012,
+   "obtido": 2012,
+   "status": "ok",
+   "nota": ""
+  },
+  {
+   "grupo": "artigo x base",
+   "descricao": "Texto do artigo: internações em 2012",
+   "esperado": 2950,
+   "obtido": 2950,
+   "status": "ok",
+   "nota": ""
+  },
+  {
+   "grupo": "artigo x base",
+   "descricao": "Texto do artigo: taxa em 2012",
+   "esperado": 91.8,
+   "obtido": 91.8,
+   "status": "ok",
+   "nota": ""
+  },
+  {
+   "grupo": "artigo x base",
+   "descricao": "DOI na citação (artigo: 10.1590/1980-549720260044)",
+   "esperado": "10.1590/1980-549720260044",
+   "obtido": "44. DOI: 10.1590/1980-549720260044",
+   "status": "ok",
+   "nota": ""
+  },
+  {
+   "grupo": "consistência do artigo",
+   "descricao": "Soma das taxas por tipo de vítima = taxa geral (176,1)",
+   "esperado": 176.1,
+   "obtido": 176.1,
+   "status": "ok",
+   "nota": ""
+  },
+  {
+   "grupo": "consistência do artigo",
+   "descricao": "Razão homem/mulher (texto: 4,4 vezes)",
+   "esperado": 4.4,
+   "obtido": 4.44,
+   "status": "ok",
+   "nota": ""
+  },
+  {
+   "grupo": "consistência do artigo",
+   "descricao": "Razão motociclista/pedestre (texto: 12 vezes)",
+   "esperado": 12,
+   "obtido": 12.0,
+   "status": "ok",
+   "nota": ""
+  },
+  {
+   "grupo": "consistência do artigo",
+   "descricao": "Óbitos / internações = letalidade 2,3%",
+   "esperado": 2.3,
+   "obtido": 2.33,
+   "status": "ok",
+   "nota": ""
+  },
+  {
+   "grupo": "consistência do artigo",
+   "descricao": "Total pago / internações = valor médio (R$ 1.123,92)",
+   "esperado": 1123.92,
+   "obtido": 1123.97,
+   "status": "ok",
+   "nota": "R$ 90,2 milhões é arredondado; a diferença é do arredondamento"
+  },
+  {
+   "grupo": "consistência do artigo",
+   "descricao": "Total corrigido (R$ 128,0 mi) / internações = valor médio corrigido (R$ 1.659,40)",
+   "esperado": 1659.4,
+   "obtido": 1595.0,
+   "status": "aviso",
+   "nota": "o artigo diz R$ 1.659,40, mas R$ 128,0 mi / 80.251 dá R$ 1.595: os dois valores corrigidos não são compatíveis entre si"
+  },
+  {
+   "grupo": "consistência do artigo",
+   "descricao": "Dias / internações = permanência média 4,9",
+   "esperado": 4.9,
+   "obtido": 4.89,
+   "status": "ok",
+   "nota": ""
+  },
+  {
+   "grupo": "consistência do artigo",
+   "descricao": "Tabela 2, 40–59 anos: limite inferior do IC95 igual à própria VPA",
+   "esperado": "IC95 mín. < VPA < IC95 máx.",
+   "obtido": "VPA -2.55 (IC95 -2.55; 0.6)",
+   "status": "aviso",
+   "nota": "o artigo imprime -2,55 (-2,55; 0,60): provável erro de digitação do limite inferior (a VPA fica no centro do IC em escala log, o que daria algo perto de -5,6). A base repete o número do artigo; trate como não confiável"
+  }
+ ]
+}
